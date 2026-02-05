@@ -9,6 +9,24 @@ export interface Project {
     localPath?: string; // Phase 1: Persistence
 }
 
+// Job System Types
+export type JobState = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+
+export interface Job {
+    id: string;
+    type: string;
+    status: JobState;
+    progress: number;
+    result?: {
+        downloadUrl?: string;
+        filename?: string;
+        [key: string]: unknown;
+    };
+    error?: string;
+    created_at: number;
+    updated_at: number;
+}
+
 // Editor Types
 export type EditorMode = 'vectorize' | 'edit' | 'translate' | 'animate';
 export type EditorTool = 'select' | 'pointer' | 'text' | 'delete' | 'pen' | 'mask' | 'panel' | 'balloon-square' | 'balloon-circle' | 'balloon-thought' | 'balloon-shout';

@@ -1,51 +1,32 @@
 /**
  * MobilePreview Component
  * 
- * iPhone frame container for previewing comic panels with animated balloons.
+ * iPhone frame container for previewing comic panels.
  * Designed to fit in the Animation Menu sidebar.
+ * 
+ * Note: Balloon animations were removed because preview images are generated 
+ * from the canvas which already includes the balloons rendered.
  */
 
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import { Smartphone } from 'lucide-react';
-import { Balloon, Panel } from '@shared/types';
 import { PageViewer } from './PageViewer';
 import { PreviewControls } from './PreviewControls';
 
 interface MobilePreviewProps {
     /** Current panel image URL */
     currentImage: string | null;
-    /** Current panel data */
-    currentPanel: Panel | null;
-    /** All balloons from the page */
-    balloons: Balloon[];
     /** Current panel index */
     currentIndex: number;
     /** Total number of panels */
     totalPanels: number;
-    /** Auto-play balloon animations */
-    autoPlay?: boolean;
 }
 
 export const MobilePreview: React.FC<MobilePreviewProps> = ({
     currentImage,
-    currentPanel,
-    balloons,
     currentIndex,
     totalPanels,
-    autoPlay = true,
 }) => {
-    // Animation key to trigger replay
-    const [animationKey, setAnimationKey] = useState(0);
-
-    const handleReplay = useCallback(() => {
-        setAnimationKey(prev => prev + 1);
-    }, []);
-
-    // Reset animation when panel changes
-    React.useEffect(() => {
-        setAnimationKey(prev => prev + 1);
-    }, [currentIndex]);
-
     return (
         <div className="flex flex-col items-center gap-3">
             {/* Label */}
@@ -73,13 +54,7 @@ export const MobilePreview: React.FC<MobilePreviewProps> = ({
                         {/* Content Area */}
                         <div className="flex-1 relative">
                             {currentImage ? (
-                                <PageViewer
-                                    imageUrl={currentImage}
-                                    balloons={balloons}
-                                    currentPanel={currentPanel}
-                                    autoPlay={autoPlay}
-                                    animationKey={animationKey}
-                                />
+                                <PageViewer imageUrl={currentImage} />
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full text-zinc-600 text-xs text-center px-4">
                                     <Smartphone size={28} className="mb-2 opacity-40" />
@@ -95,7 +70,6 @@ export const MobilePreview: React.FC<MobilePreviewProps> = ({
                         <PreviewControls
                             currentIndex={currentIndex}
                             totalPanels={totalPanels}
-                            onReplay={handleReplay}
                         />
 
                         {/* Home Indicator */}

@@ -10,7 +10,7 @@ import { RotateCcw } from 'lucide-react';
 interface PreviewControlsProps {
     currentIndex: number;
     totalPanels: number;
-    onReplay: () => void;
+    onReplay?: () => void;
 }
 
 export const PreviewControls: React.FC<PreviewControlsProps> = ({

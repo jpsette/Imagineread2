@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useUIStore } from '@app/store/useUIStore';
 import { useEditorUIStore } from '@features/editor/uiStore'; // Import specific editor store
-import { Eye, EyeOff } from 'lucide-react';
+import { useReaderStore } from '@features/reader';
+import { usePublicationStore } from '@features/publication';
+import { Eye, EyeOff, BookOpen, Upload } from 'lucide-react';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -167,6 +169,24 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                         <span className={`w-1.5 h-1.5 rounded-full ${isInEditor ? 'bg-accent-blue animate-pulse' : 'bg-zinc-700'}`} />
                         Workstation Editor
                     </div>
+
+                    {/* MENU: PREPARAÇÃO - Abre direto o Leitor */}
+                    <button
+                        onClick={() => useReaderStore.getState().setShowReader(true)}
+                        className="text-[13px] px-2 py-0.5 rounded transition-colors font-medium flex items-center gap-1.5 text-text-secondary hover:text-green-400 hover:bg-green-500/10"
+                    >
+                        <BookOpen size={14} />
+                        Preparação
+                    </button>
+
+                    {/* MENU: PUBLICAÇÃO - Abre janela de publicação */}
+                    <button
+                        onClick={() => usePublicationStore.getState().setShowPublication(true)}
+                        className="text-[13px] px-2 py-0.5 rounded transition-colors font-medium flex items-center gap-1.5 text-text-secondary hover:text-purple-400 hover:bg-purple-500/10"
+                    >
+                        <Upload size={14} />
+                        Publicação
+                    </button>
                 </div>
 
                 {/* RIGHT SIDE STATS OR INFO */}

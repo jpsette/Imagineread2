@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { X, Trash2, Edit3, Download } from 'lucide-react';
+import { X, Trash2, Edit3, Download, Send } from 'lucide-react';
 import { Button } from '@shared/ui/Button';
 
 import { ExportModal } from './ExportModal';
 import { FileEntry } from '@shared/types';
 import { GridCanvas } from './components/workstation/GridCanvas';
+import { prepareForReader, createPageData, useReaderStore } from '@features/reader';
 
 // Note: Ensure PageCard is not duplicated if exported from Grid
 // If PageCard is used in DragOverlay inside Grid, we don't need it here unless we have a specific overlay here. 
@@ -33,6 +34,10 @@ export const ComicWorkstation: React.FC<ComicWorkstationProps> = ({
     const [selectedPageIds, setSelectedPageIds] = useState<Set<string>>(new Set());
     const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+    // Check if this comic is in preparation mode
+    const { projectId: readerProjectId, pages: readerPages } = useReaderStore();
+    const isInPreparation = readerProjectId === comic.id && readerPages.length > 0;
 
     // Sync store -> local state
     // We update orderedPages when the list of IDs changes (files added/removed)
@@ -149,24 +154,40 @@ export const ComicWorkstation: React.FC<ComicWorkstationProps> = ({
 
                     {/* Actions */}
                     <div className="flex items-center gap-2 pointer-events-auto">
+                        {/* Status badge when in preparation - click to return to editing */}
+                        {isInPreparation && (
+                            <button
+                                onClick={() => {
+                                    if (confirm('Deseja sair da preparação e voltar para edição? Os dados de preparação serão perdidos.')) {
+                                        useReaderStore.getState().reset();
+                                    }
+                                }}
+                                className="group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400 text-xs font-medium hover:bg-amber-500/20 hover:border-amber-500/30 hover:text-amber-400 transition-all cursor-pointer min-w-[180px] justify-center"
+                            >
+                                <div className="w-2 h-2 rounded-full bg-green-500 group-hover:bg-amber-500 animate-pulse transition-colors" />
+                                <span className="group-hover:hidden">Quadrinho em preparação</span>
+                                <span className="hidden group-hover:inline">← Voltar para edição</span>
+                            </button>
+                        )}
+
                         <Button
                             onClick={handleEditPage}
-                            disabled={selectedPageIds.size !== 1}
-                            variant={selectedPageIds.size === 1 ? 'primary' : 'ghost'}
+                            disabled={selectedPageIds.size !== 1 || isInPreparation}
+                            variant={selectedPageIds.size === 1 && !isInPreparation ? 'primary' : 'ghost'}
                             size="sm"
                             icon={Edit3}
-                            className={selectedPageIds.size !== 1 ? 'opacity-50 cursor-not-allowed text-zinc-600' : ''}
+                            className={`${selectedPageIds.size !== 1 || isInPreparation ? '!opacity-50 !cursor-not-allowed !text-zinc-600 pointer-events-none' : ''}`}
                         >
                             <span className="hidden sm:inline">Editar</span>
                         </Button>
 
                         <Button
                             onClick={handleBulkDelete}
-                            disabled={selectedPageIds.size === 0}
+                            disabled={selectedPageIds.size === 0 || isInPreparation}
                             variant="danger"
                             size="sm"
                             icon={Trash2}
-                            className={selectedPageIds.size === 0 ? 'opacity-50 cursor-not-allowed bg-black/20 border-white/5 text-zinc-600' : ''}
+                            className={`${selectedPageIds.size === 0 || isInPreparation ? '!opacity-50 !cursor-not-allowed !text-zinc-600 !bg-black/20 !border-white/5 pointer-events-none' : ''}`}
                         >
                             <span className="hidden sm:inline">Excluir {selectedPageIds.size > 0 ? `(${selectedPageIds.size})` : ''}</span>
                         </Button>
@@ -181,6 +202,45 @@ export const ComicWorkstation: React.FC<ComicWorkstationProps> = ({
                         >
                             <span className="hidden sm:inline">Exportar</span>
                         </Button>
+
+                        {!isInPreparation ? (
+                            <Button
+                                onClick={() => {
+                                    // Collect all pages and send to Reader
+                                    const pagesData = orderedPages.map((page, index) => createPageData({
+                                        id: page.id,
+                                        order: index,
+                                        fileName: page.name || `page-${index + 1}`,
+                                        imageUrl: page.url,
+                                        panels: [],
+                                        balloons: [],
+                                        previewImages: [page.url],
+                                    }));
+                                    prepareForReader({
+                                        projectId: comic.id,
+                                        projectName: comic.name,
+                                        pages: pagesData,
+                                    });
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                icon={Send}
+                                className="text-green-400 hover:bg-green-500/10"
+                            >
+                                <span className="hidden sm:inline">Enviar para preparação</span>
+                            </Button>
+                        ) : (
+                            <Button
+                                onClick={() => useReaderStore.getState().setShowReader(true)}
+                                variant="ghost"
+                                size="sm"
+                                icon={Send}
+                                className="text-green-400 bg-green-500/10"
+                            >
+                                <span className="hidden sm:inline">Abrir Preparação</span>
+                            </Button>
+                        )}
+
                         <Button
                             onClick={handleClose}
                             variant="ghost"
@@ -198,7 +258,10 @@ export const ComicWorkstation: React.FC<ComicWorkstationProps> = ({
                     selectedPageIds={selectedPageIds}
                     onReorderPages={onReorderPages}
                     onSelectPageClick={handlePageClick}
-                    onEditPage={handleSelectPage}
+                    onEditPage={(pageId) => {
+                        if (isInPreparation) return; // Block editing when in preparation
+                        handleSelectPage(pageId);
+                    }}
                     onAddPages={onAddPages}
                     setOrderedPages={setOrderedPages}
                 />

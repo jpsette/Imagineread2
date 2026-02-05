@@ -9,6 +9,5 @@ export interface ModeDefinition {
 export const editorModes: ModeDefinition[] = [
     { key: 'vectorize', label: 'Vetorizar' },
     { key: 'translate', label: 'Texto' },
-    { key: 'edit', label: 'Objeto' },
-    { key: 'animate', label: 'Leitor' }
+    { key: 'edit', label: 'Objeto' }
 ];

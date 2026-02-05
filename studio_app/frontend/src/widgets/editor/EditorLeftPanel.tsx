@@ -6,7 +6,6 @@ import { useEditorStore } from '@features/editor/store';
 import { VectorizeMenu } from '@features/editor/components/menus/VectorizeMenu';
 import { LeftSidebar } from './LeftSidebar';
 import { TranslateMenu } from '@features/editor/components/menus/TranslateMenu';
-import { AnimateMenu } from '@features/editor/components/menus/AnimateMenu';
 import { FloatingPanel } from '@shared/components/FloatingPanel';
 import { TranslateLoadingOverlay } from '@features/editor/components/TranslateLoadingOverlay';
 
@@ -116,7 +115,7 @@ export const EditorLeftPanel = React.memo<EditorLeftPanelProps>(({
                             onSelectGlossary={setSelectedGlossaryId}
                         />
                     )}
-                    {activeMode === 'animate' && <AnimateMenu />}
+
                 </div>
             </div>
 

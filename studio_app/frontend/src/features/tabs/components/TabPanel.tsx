@@ -12,23 +12,6 @@ export const TabPanel: React.FC = () => {
         deduplicateTabs();
     }, [tabs.length, deduplicateTabs]);
 
-    // VISUAL FAIL-SAFE: Ensure we NEVER render duplicates, even if Store has them
-    const uniqueRenderTabs = React.useMemo(() => {
-        const seen = new Set<string>();
-        return tabs.filter(t => {
-            // USER REQUEST: STRICTLY showing only PAGES. No folders, no comics.
-            if (t.type !== 'page') return false;
-
-            // Identifier: Path is the most reliable visual discriminator
-            // We strip trailing slashes to be safe
-            const normalizedPath = t.path.replace(/\/$/, '');
-            if (seen.has(normalizedPath)) return false;
-
-            seen.add(normalizedPath);
-            return true;
-        });
-    }, [tabs]);
-
     const handleTabClick = (tab: Tab) => {
         if (tab.id === activeTabId) return;
         setActiveTab(tab.id, navigate);

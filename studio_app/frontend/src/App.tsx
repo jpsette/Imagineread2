@@ -5,6 +5,8 @@ import { AppRoutes } from './app/routes';
 
 // Components
 import { JobMonitor } from './features/jobs/components/JobMonitor';
+import { ReaderWindow } from '@features/reader';
+import { PublicationWindow } from '@features/publication';
 
 const App: React.FC = () => {
     // === GLOBAL STORES ===
@@ -20,6 +22,10 @@ const App: React.FC = () => {
         <>
             <AppRoutes />
             <JobMonitor />
+            {/* Global Reader Window - works from any screen */}
+            <ReaderWindow />
+            {/* Global Publication Window - works from any screen */}
+            <PublicationWindow />
         </>
     );
 };

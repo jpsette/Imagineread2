@@ -21,8 +21,7 @@ const TileImage = ({ url, x, y, size, resolutionFactor }: { url: string, x: numb
     // Let's wrap standard img.
     const [image, status] = useImage(url, 'anonymous');
     const [retryCount, setRetryCount] = React.useState(0);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [currentUrl, setCurrentUrl] = React.useState(url);
+    const [, setCurrentUrl] = React.useState(url);
 
     // If failed, retry after short delay
     React.useEffect(() => {
